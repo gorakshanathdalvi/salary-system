@@ -1,0 +1,133 @@
+<%- include('navbar') %>
+
+<style>
+
+body{
+background:#f1f5fb;
+font-family:'Segoe UI',sans-serif;
+}
+
+.page-header{
+background:linear-gradient(135deg,#007bff,#00c6ff);
+color:white;
+padding:20px 25px;
+border-radius:10px;
+margin-bottom:25px;
+}
+
+.form-card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+}
+
+.table thead{
+background:#007bff;
+color:white;
+}
+
+.form-control{
+height:40px;
+border-radius:6px;
+}
+
+.save-btn{
+background:#007bff;
+border:none;
+padding:10px 30px;
+border-radius:8px;
+color:white;
+font-weight:600;
+}
+
+.save-btn:hover{
+background:#0056d2;
+}
+
+</style>
+
+<div class="container py-4">
+
+<div class="page-header">
+<h4 class="mb-0">Add Attendance</h4>
+<a href="/attendance_list" class="btn btn-sm btn-outline-light">View Attendance List</a>
+</div>
+
+<div class="form-card">
+
+<form action="/save_attendance" method="POST">
+
+<div class="row mb-4">
+
+<div class="col-md-4">
+<label>Select Date</label>
+<input type="date" class="form-control" name="attendance_date" required>
+</div>
+
+</div>
+
+<table class="table table-bordered table-hover">
+
+<thead>
+<tr>
+<th>#</th>
+<th>Employee</th>
+<th>Status</th>
+<th>In Time</th>
+<th>Out Time</th>
+</tr>
+</thead>
+
+<tbody>
+
+<% employees.forEach((emp,index)=>{ %>
+
+<tr>
+
+<td><%= index+1 %></td>
+
+<td>
+<input type="hidden" name="employee_id[]" value="<%= emp.employee_id %>">
+<strong><%= emp.employee_name %></strong>
+</td>
+
+<td>
+<select class="form-control" name="status[]">
+<option value="P">Present</option>
+<option value="A">Absent</option>
+<option value="H">Half Day</option>
+</select>
+</td>
+
+<td>
+<input type="time" class="form-control" name="in_time[]">
+</td>
+
+<td>
+<input type="time" class="form-control" name="out_time[]">
+</td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+<div class="text-end mt-3">
+
+<button type="submit" class="save-btn">
+Save Attendance
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<%- include('footer') %>

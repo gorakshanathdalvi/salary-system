@@ -1,0 +1,279 @@
+<%- include('navbar') %>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+body{
+background:#f1f5fb;
+font-family:'Segoe UI',sans-serif;
+}
+
+.page-header{
+background:linear-gradient(135deg,#007bff,#00c6ff);
+color:white;
+padding:20px 25px;
+border-radius:10px;
+margin-bottom:25px;
+}
+
+.filter-card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+margin-bottom:20px;
+}
+
+.table-card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+}
+
+.table thead{
+background:#007bff;
+color:white;
+}
+
+.form-control{
+height:40px;
+}
+.filter-card button,
+.filter-card a{
+height:40px;
+}
+</style>
+
+
+<div class="container py-4">
+
+<div class="page-header">
+<h4 class="mb-0">Attendance List</h4>
+<a href="/add_attendance" class="btn btn-sm btn-outline-light">Add Attendance</a>
+</div>
+
+<!-- FILTER -->
+
+<div class="filter-card">
+<% if(success_msg){ %>
+<div class="alert alert-success auto-hide">
+<%= success_msg %>
+</div>
+<% } %>
+
+<% if(error_msg){ %>
+<div class="alert alert-danger auto-hide">
+<%= error_msg %>
+</div>
+<% } %>
+<br>
+<form method="GET" action="/attendance_list">
+
+<div class="row">
+
+<div class="col-md-3">
+
+<label>Employee</label>
+
+<select class="form-control" name="employee_id">
+
+<option value="">All Employees</option>
+
+<% employees.forEach(emp=>{ %>
+
+<option value="<%= emp.employee_id %>" 
+<%= employee_id == emp.employee_id ? 'selected':'' %>>
+
+<%= emp.employee_name %>
+
+</option>
+
+<% }) %>
+
+</select>
+
+</div>
+
+<div class="col-md-3">
+
+<label>Start Date</label>
+
+<input type="date" class="form-control" name="start_date" value="<%= start_date %>">
+
+</div>
+
+<div class="col-md-3">
+
+<label>End Date</label>
+
+<input type="date" class="form-control" name="end_date" value="<%= end_date %>">
+
+</div>
+
+<div class="col-md-3 d-flex align-items-end">
+
+<button class="btn btn-primary w-50 me-2">
+<i class="fa fa-search"></i> Filter
+</button>
+
+<a href="/attendance_list" class="btn btn-secondary w-50">
+<i class="fa fa-rotate-left"></i> Reset
+</a>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+<!-- TABLE -->
+
+<div class="table-card">
+
+<table id="attendanceTable" class="table table-bordered table-hover">
+
+<thead>
+
+<tr>
+<th>#</th>
+<th>Date</th>
+<th>Employee</th>
+<th>In Time</th>
+<th>Out Time</th>
+<th>Total Hours</th>
+<th>Duty Hours</th>
+<th>OT Hours</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<% attendance.forEach((row,index)=>{ %>
+
+<tr>
+
+<td><%= index+1 %></td>
+
+<td><%= new Date(row.attendance_date).toLocaleDateString('en-GB') %></td>
+
+<td><%= row.employee_name %></td>
+
+<td><%= row.in_time %></td>
+
+<td><%= row.out_time %></td>
+
+<td><%= row.total_hours %></td>
+
+<td><%= row.duty_hours %></td>
+
+<td><%= row.ot_hours %></td>
+
+<td>
+
+<% if(row.status == 'P'){ %>
+
+<span class="badge bg-success">Present</span>
+
+<% } else if(row.status == 'A'){ %>
+
+<span class="badge bg-danger">Absent</span>
+
+<% } else { %>
+
+<span class="badge bg-warning text-dark">Half</span>
+
+<% } %>
+
+</td>
+<td>
+<a href="/edit_attendance/<%= row.attendance_id %>" class="btn btn-sm btn-primary">
+<i class="fa fa-edit"></i> Edit
+</a>
+</td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+setTimeout(function(){
+
+let alerts = document.querySelectorAll('.auto-hide');
+
+alerts.forEach(function(alert){
+alert.style.transition = "opacity 0.5s";
+alert.style.opacity = "0";
+
+setTimeout(()=>{
+alert.remove();
+},500);
+
+});
+
+},3000);
+
+</script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+<script>
+
+$(document).ready(function(){
+
+$('#attendanceTable').DataTable({
+
+dom:'Bfrtip',
+
+buttons:[
+{
+extend:'excel',
+className:'btn btn-success',
+text:'Excel'
+},
+{
+extend:'pdf',
+className:'btn btn-danger',
+text:'PDF'
+}
+]
+
+});
+
+});
+
+</script>
+
+<%- include('footer') %>

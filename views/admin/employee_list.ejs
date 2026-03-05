@@ -1,0 +1,304 @@
+<%- include('navbar') %>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+body{
+    background:#f1f5fb;
+    font-family:'Segoe UI',sans-serif;
+}
+
+/* Header */
+.page-header{
+    background:linear-gradient(135deg,#007bff,#00c6ff);
+    color:white;
+    padding:20px 25px;
+    border-radius:10px;
+    margin-bottom:25px;
+}
+
+/* Stats Cards */
+.stat-card{
+    background:white;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.stat-icon{
+    font-size:30px;
+}
+
+/* Table Card */
+.table-card{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.08);
+}
+
+/* Table Head */
+table.dataTable thead{
+    background:#007bff;
+    color:white;
+}
+
+/* Action buttons */
+.action-btn{
+    border-radius:6px;
+    padding:6px 10px;
+}
+
+/* Export buttons */
+.dt-buttons .btn{
+    margin-right:5px;
+}
+.dataTables_paginate .pagination{
+justify-content:flex-end;
+}
+
+.pagination .page-link{
+border-radius:6px;
+margin:0 3px;
+}
+</style>
+
+<div class="container py-4">
+
+<div class="page-header">
+<h4 class="mb-0">Employee Management</h4>
+<a href="/add_new_employee" class="btn btn-lg btn-outline-light ">Add New Employee</a>
+</div>
+
+<!-- Statistics -->
+
+<div class="row mb-4">
+
+
+<div class="col-md-4">
+<div class="stat-card d-flex justify-content-between align-items-center">
+<div>
+<h6>Total Employees</h6>
+<h4><%= employees.length %></h4>
+</div>
+<div class="stat-icon text-primary">
+<i class="fa-solid fa-users"></i>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="stat-card d-flex justify-content-between align-items-center">
+<div>
+<h6>Monthly Salary</h6>
+<h4>
+<%= employees.filter(e => e.salary_type === 'monthly').length %>
+</h4>
+</div>
+<div class="stat-icon text-success">
+<i class="fa-solid fa-money-bill"></i>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+<div class="stat-card d-flex justify-content-between align-items-center">
+<div>
+<h6>Daily Wage</h6>
+<h4>
+<%= employees.filter(e => e.salary_type === 'daily').length %>
+</h4>
+</div>
+<div class="stat-icon text-warning">
+<i class="fa-solid fa-clock"></i>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- Table -->
+
+<div class="table-card">
+<% if(success_msg){ %>
+<div class="alert alert-success auto-hide">
+<%= success_msg %>
+</div>
+<% } %>
+
+<% if(error_msg){ %>
+<div class="alert alert-danger auto-hide">
+<%= error_msg %>
+</div>
+<% } %>
+<br>
+<table id="employeeTable" class="table table-hover">
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Mobile</th>
+<th>Joining Date</th>
+<th>Salary Type</th>
+<th>Salary</th>
+<th>OT Rate</th>
+<th>Address</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+<% employees.forEach((emp, index) => { %>
+
+<tr>
+
+<td></td>
+
+<td>
+<strong><%= emp.employee_name %></strong>
+</td>
+
+<td><%= emp.employee_mobile %></td>
+
+<td>
+<%= new Date(emp.joining_date).toLocaleDateString('en-GB') %>
+</td>
+
+<td>
+
+<% if(emp.salary_type === 'monthly'){ %>
+<span class="badge bg-success">Monthly</span>
+<% } else { %>
+<span class="badge bg-warning text-dark">Daily</span>
+<% } %>
+
+</td>
+
+<td>
+
+<% if(emp.salary_type === 'monthly'){ %>
+₹ <%= emp.monthly_salary %>
+<% } else { %>
+₹ <%= emp.daily_wage %>
+<% } %>
+
+</td>
+
+<td>₹ <%= emp.overtime_rate %></td>
+
+<td><%= emp.employee_address %></td>
+
+<td>
+
+<a href="/edit_employee/<%= emp.employee_id %>" 
+class="btn btn-warning btn-sm action-btn">
+<i class="fa-solid fa-pen"></i>
+</a>
+
+<a href="/delete_employee/<%= emp.employee_id %>" 
+class="btn btn-danger btn-sm action-btn">
+<i class="fa-solid fa-trash"></i>
+</a>
+
+</td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<script>
+
+setTimeout(function(){
+
+let alerts = document.querySelectorAll('.auto-hide');
+
+alerts.forEach(function(alert){
+alert.style.transition = "opacity 0.5s";
+alert.style.opacity = "0";
+
+setTimeout(()=>{
+alert.remove();
+},500);
+
+});
+
+},3000);
+
+</script>
+
+<script>
+
+$(document).ready(function(){
+
+let table = $('#employeeTable').DataTable({
+
+responsive:true,
+
+dom:'Bfrtip',
+
+buttons:[
+{
+extend:'excel',
+className:'btn btn-success',
+text:'Excel'
+},
+{
+extend:'pdf',
+className:'btn btn-danger',
+text:'PDF'
+},
+{
+extend:'print',
+className:'btn btn-info',
+text:'Print'
+}
+]
+
+});
+
+// Auto serial number
+table.on('order.dt search.dt', function () {
+table.column(0, {search:'applied', order:'applied'}).nodes()
+.each(function (cell, i) {
+cell.innerHTML = '#' + (i + 1);
+});
+}).draw();
+
+});
+
+</script>
+
+<%- include('footer') %>

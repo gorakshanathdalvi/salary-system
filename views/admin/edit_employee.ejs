@@ -1,0 +1,186 @@
+<%- include('navbar') %>
+
+<style>
+
+body{
+    background:#eef2f7;
+    font-family:'Segoe UI',sans-serif;
+}
+
+/* Header */
+.page-header{
+    background:linear-gradient(135deg,#007bff,#00c6ff);
+    padding:20px 30px;
+    color:white;
+    border-radius:10px;
+    margin-bottom:25px;
+}
+
+/* Card */
+.form-card{
+    background:white;
+    border-radius:12px;
+    padding:35px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.08);
+}
+
+/* Section title */
+.section-title{
+    font-weight:600;
+    font-size:18px;
+    margin-bottom:20px;
+    border-left:4px solid #007bff;
+    padding-left:10px;
+}
+
+/* Inputs */
+.form-control, .form-select{
+    height:46px;
+    border-radius:8px;
+    border:1px solid #ddd;
+}
+
+.form-control:focus{
+    border-color:#007bff;
+    box-shadow:none;
+}
+
+/* Buttons */
+.save-btn{
+    background:linear-gradient(135deg,#007bff,#0056d2);
+    border:none;
+    height:45px;
+    border-radius:8px;
+    font-weight:600;
+    padding:0 40px;
+}
+
+.cancel-btn{
+    height:45px;
+    border-radius:8px;
+    font-weight:600;
+    padding:0 40px;
+}
+
+</style>
+
+<div class="container py-4">
+
+<div class="page-header">
+<h4 class="mb-0">Edit Employee</h4>
+</div>
+
+<div class="form-card">
+
+<form action="/update_employee/<%= employee.employee_id %>" method="POST">
+
+<!-- Employee Info -->
+
+<div class="section-title">Employee Information</div>
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+<label>Employee Name</label>
+<input type="text" class="form-control" name="employee_name" value="<%= employee.employee_name %>" required>
+</div>
+
+<div class="col-md-6 mb-3">
+<label>Mobile Number</label>
+<input type="text" class="form-control" name="employee_mobile" value="<%= employee.employee_mobile %>">
+</div>
+
+<div class="col-md-6 mb-3">
+<label>Joining Date</label>
+<input type="date" class="form-control" name="joining_date"
+value="<%= new Date(employee.joining_date).toISOString().split('T')[0] %>">
+</div>
+
+<div class="col-md-6 mb-3">
+<label>Salary Type</label>
+<select class="form-select" name="salary_type" id="salaryType">
+
+<option value="monthly" <%= employee.salary_type === 'monthly' ? 'selected' : '' %>>Monthly</option>
+
+<option value="daily" <%= employee.salary_type === 'daily' ? 'selected' : '' %>>Daily Wage</option>
+
+</select>
+</div>
+
+<div class="col-md-12 mb-3">
+<label>Address</label>
+<textarea class="form-control" name="employee_address" rows="3"><%= employee.employee_address %></textarea>
+</div>
+
+</div>
+
+<hr>
+
+<!-- Salary Section -->
+
+<div class="section-title">Salary Details</div>
+
+<div class="row">
+
+<div class="col-md-4 mb-3" id="monthlySalaryBox">
+<label>Monthly Salary</label>
+<input type="number" class="form-control" name="monthly_salary" value="<%= employee.monthly_salary %>">
+</div>
+
+<div class="col-md-4 mb-3" id="dailyWageBox">
+<label>Daily Wage</label>
+<input type="number" class="form-control" name="daily_wage" value="<%= employee.daily_wage %>">
+</div>
+
+<div class="col-md-4 mb-3">
+<label>Overtime Rate</label>
+<input type="number" class="form-control" name="overtime_rate" value="<%= employee.overtime_rate %>">
+</div>
+
+</div>
+
+<hr>
+
+<div class="d-flex justify-content-end gap-2">
+
+<a href="/employee_list" class="btn btn-secondary cancel-btn">
+Cancel
+</a>
+
+<button type="submit" class="btn save-btn">
+Update Employee
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<script>
+
+const salaryType = document.getElementById("salaryType");
+const monthlyBox = document.getElementById("monthlySalaryBox");
+const dailyBox = document.getElementById("dailyWageBox");
+
+function toggleSalaryFields(){
+
+if(salaryType.value === "monthly"){
+monthlyBox.style.display="block";
+dailyBox.style.display="none";
+}
+else{
+monthlyBox.style.display="none";
+dailyBox.style.display="block";
+}
+
+}
+
+salaryType.addEventListener("change", toggleSalaryFields);
+toggleSalaryFields();
+
+</script>
+
+<%- include('footer') %>

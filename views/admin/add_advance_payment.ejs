@@ -1,0 +1,157 @@
+<%- include('navbar') %>
+
+<style>
+
+body{
+background:#f1f5fb;
+font-family:'Segoe UI',sans-serif;
+}
+
+.page-header{
+background:linear-gradient(135deg,#007bff,#00c6ff);
+color:white;
+padding:20px 25px;
+border-radius:10px;
+margin-bottom:25px;
+}
+
+.form-card{
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+max-width:700px;
+margin:auto;
+}
+
+.form-control{
+height:45px;
+border-radius:8px;
+}
+
+.save-btn{
+background:#007bff;
+border:none;
+padding:10px 40px;
+border-radius:8px;
+color:white;
+font-weight:600;
+}
+
+.save-btn:hover{
+background:#0056d2;
+}
+
+</style>
+
+<div class="container py-4">
+
+<div class="page-header">
+<h4 class="mb-0">Add Advance Payment</h4>
+<a href="/advance_payment_list" class="btn btn-sm btn-outline-light">View Advance List</a>
+</div>
+
+<div class="form-card">
+
+<% if(success_msg){ %>
+<div class="alert alert-success auto-hide">
+<%= success_msg %>
+</div>
+<% } %>
+
+<% if(error_msg){ %>
+<div class="alert alert-danger auto-hide">
+<%= error_msg %>
+</div>
+<% } %>
+
+<form action="/save_advance_payment" method="POST">
+
+<div class="row">
+
+<div class="col-md-12 mb-3">
+
+<label>Select Employee</label>
+
+<select class="form-control" name="employee_id" required>
+
+<option value="">Select Employee</option>
+
+<% employees.forEach(emp=>{ %>
+
+<option value="<%= emp.employee_id %>">
+<%= emp.employee_name %>
+</option>
+
+<% }) %>
+
+</select>
+
+</div>
+
+
+<div class="col-md-6 mb-3">
+
+<label>Advance Date</label>
+
+<input type="date" class="form-control" name="advance_date" required>
+
+</div>
+
+
+<div class="col-md-6 mb-3">
+
+<label>Amount</label>
+
+<input type="number" class="form-control" name="amount" placeholder="Enter advance amount" required>
+
+</div>
+
+
+<div class="col-md-12 mb-3">
+
+<label>Remark</label>
+
+<textarea class="form-control" name="remark" rows="3"></textarea>
+
+</div>
+
+
+<div class="col-md-12 text-end">
+
+<button class="save-btn">
+Save Advance
+</button>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<script>
+
+setTimeout(function(){
+
+let alerts = document.querySelectorAll('.auto-hide');
+
+alerts.forEach(function(alert){
+
+alert.style.transition="0.5s";
+alert.style.opacity="0";
+
+setTimeout(()=>{
+alert.remove();
+},500);
+
+});
+
+},3000);
+
+</script>
+
+<%- include('footer') %>
