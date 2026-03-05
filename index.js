@@ -25,8 +25,8 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/', adminRoutes);
 app.use('/login', loginRoutes);
+app.use('/', adminRoutes);
 
 
 const port = 1000;

@@ -6,8 +6,8 @@ router.get('/', (req, res) => {
 });
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    console.log("Login attempt:", username);
-    console.log("Password:", password);
+    // console.log("Login attempt:", username);
+    // console.log("Password:", password);
     if (!username || !password) {
         return res.render("login", { error: "Please enter both username and password." });
     }

@@ -11,25 +11,26 @@
 <style>
 
 body{
-    height:100vh;
+    min-height:100vh;
     background:#f5f7fb;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-family: 'Segoe UI', sans-serif;
+    font-family:'Segoe UI', sans-serif;
+    padding:20px;
 }
 
 /* Main Card */
 .login-box{
-    width:950px;
-    height:550px;
+    width:100%;
+    max-width:950px;
     background:white;
     border-radius:15px;
     overflow:hidden;
     box-shadow:0 20px 40px rgba(0,0,0,0.1);
 }
 
-/* Left Background */
+/* Left Side */
 .login-left{
     background:linear-gradient(135deg,#007bff,#00c6ff);
     display:flex;
@@ -45,7 +46,8 @@ body{
 }
 
 .login-left img{
-    width:75%;
+    width:70%;
+    max-width:220px;
     margin-top:20px;
 }
 
@@ -81,6 +83,57 @@ body{
     background:#0056d2;
 }
 
+/* Tablet */
+@media (max-width:992px){
+
+.login-right{
+padding:40px 30px;
+}
+
+.login-left img{
+width:60%;
+}
+
+}
+
+/* Mobile */
+@media (max-width:768px){
+
+.login-box{
+border-radius:12px;
+}
+
+.login-left{
+padding:30px 20px;
+}
+
+.login-left img{
+width:120px;
+}
+
+.login-right{
+padding:30px 25px;
+}
+
+}
+
+/* Small Mobile */
+@media (max-width:480px){
+
+.login-right h3{
+font-size:22px;
+}
+
+.login-left h2{
+font-size:22px;
+}
+
+.login-right{
+padding:25px 20px;
+}
+
+}
+
 </style>
 </head>
 
@@ -88,45 +141,48 @@ body{
 
 <div class="login-box row g-0">
 
-    <!-- Left Side Background -->
-    <div class="col-md-6 login-left">
+<!-- Left -->
+<div class="col-lg-6 col-md-6 col-12 login-left">
 
-        <div>
-            <h2>Payroll System</h2>
-            <p>Labour Contractor Management</p>
+<div>
+<h2>Payroll System</h2>
+<p>Labour Contractor Management</p>
 
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-        </div>
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="img-fluid">
 
-    </div>
+</div>
 
-    <!-- Right Side Form -->
-    <div class="col-md-6 login-right">
+</div>
 
-        <h3>Admin Login</h3>
-        <p>Enter your credentials to access dashboard</p>
+<!-- Right -->
+<div class="col-lg-6 col-md-6 col-12 login-right">
+
+<h3>Admin Login</h3>
+<p>Enter your credentials to access dashboard</p>
+
 <% if (typeof error !== 'undefined') { %>
-    <div class="alert alert-danger"><%= error %></div>
+<div class="alert alert-danger"><%= error %></div>
 <% } %>
-        <form action="/login/login" method="POST">
 
-            <div class="mb-3">
-                <label>Username</label>
-                <input type="text" class="form-control" name="username" required placeholder="Enter username">
-            </div>
+<form action="/login/login" method="POST">
 
-            <div class="mb-4">
-                <label>Password</label>
-                <input type="password" class="form-control" name="password" required placeholder="Enter password">
-            </div>
+<div class="mb-3">
+<label>Username</label>
+<input type="text" class="form-control" name="username" required placeholder="Enter username">
+</div>
 
-            <button class="btn login-btn w-100">
-                Login
-            </button>
+<div class="mb-4">
+<label>Password</label>
+<input type="password" class="form-control" name="password" required placeholder="Enter password">
+</div>
 
-        </form>
+<button class="btn login-btn w-100">
+Login
+</button>
 
-    </div>
+</form>
+
+</div>
 
 </div>
 

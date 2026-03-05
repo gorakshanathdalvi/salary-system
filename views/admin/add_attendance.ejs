@@ -7,13 +7,27 @@ background:#f1f5fb;
 font-family:'Segoe UI',sans-serif;
 }
 
+/* Header */
+
 .page-header{
 background:linear-gradient(135deg,#007bff,#00c6ff);
 color:white;
 padding:20px 25px;
 border-radius:10px;
 margin-bottom:25px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:10px;
 }
+
+.page-header h4{
+margin:0;
+}
+
+/* Card */
 
 .form-card{
 background:white;
@@ -22,15 +36,29 @@ border-radius:12px;
 box-shadow:0 15px 35px rgba(0,0,0,0.08);
 }
 
+/* Table */
+
+.table-responsive{
+overflow-x:auto;
+}
+
 .table thead{
 background:#007bff;
 color:white;
 }
 
+.table{
+min-width:700px;
+}
+
+/* Inputs */
+
 .form-control{
 height:40px;
 border-radius:6px;
 }
+
+/* Button */
 
 .save-btn{
 background:#007bff;
@@ -45,13 +73,51 @@ font-weight:600;
 background:#0056d2;
 }
 
+/* Mobile Responsive */
+
+@media (max-width:768px){
+
+.page-header{
+flex-direction:column;
+align-items:flex-start;
+}
+
+.page-header a{
+width:100%;
+text-align:center;
+}
+
+.form-card{
+padding:20px;
+}
+
+.table{
+font-size:14px;
+}
+
+.form-control{
+height:36px;
+font-size:14px;
+}
+
+.save-btn{
+width:100%;
+}
+
+}
+
 </style>
 
-<div class="container py-4">
+<div class="container-fluid admin-page-container py-4">
 
 <div class="page-header">
-<h4 class="mb-0">Add Attendance</h4>
-<a href="/attendance_list" class="btn btn-sm btn-outline-light">View Attendance List</a>
+
+<h4>Add Attendance</h4>
+
+<a href="/attendance_list" class="btn btn-sm btn-outline-light">
+View Attendance List
+</a>
+
 </div>
 
 <div class="form-card">
@@ -60,16 +126,22 @@ background:#0056d2;
 
 <div class="row mb-4">
 
-<div class="col-md-4">
-<label>Select Date</label>
+<div class="col-lg-4 col-md-6 col-12">
+
+<label class="mb-1">Select Date</label>
+
 <input type="date" class="form-control" name="attendance_date" required>
+
 </div>
 
 </div>
+
+<div class="table-responsive">
 
 <table class="table table-bordered table-hover">
 
 <thead>
+
 <tr>
 <th>#</th>
 <th>Employee</th>
@@ -77,6 +149,7 @@ background:#0056d2;
 <th>In Time</th>
 <th>Out Time</th>
 </tr>
+
 </thead>
 
 <tbody>
@@ -93,19 +166,25 @@ background:#0056d2;
 </td>
 
 <td>
+
 <select class="form-control" name="status[]">
 <option value="P">Present</option>
 <option value="A">Absent</option>
 <option value="H">Half Day</option>
 </select>
+
 </td>
 
 <td>
+
 <input type="time" class="form-control" name="in_time[]">
+
 </td>
 
 <td>
+
 <input type="time" class="form-control" name="out_time[]">
+
 </td>
 
 </tr>
@@ -115,6 +194,8 @@ background:#0056d2;
 </tbody>
 
 </table>
+
+</div>
 
 <div class="text-end mt-3">
 

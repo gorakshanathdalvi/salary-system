@@ -7,115 +7,195 @@
 <style>
 
 body{
-    background:#f1f5fb;
-    font-family:'Segoe UI',sans-serif;
+background:#f1f5fb;
+font-family:'Segoe UI',sans-serif;
 }
 
 /* Header */
 .page-header{
-    background:linear-gradient(135deg,#007bff,#00c6ff);
-    color:white;
-    padding:20px 25px;
-    border-radius:10px;
-    margin-bottom:25px;
+background:linear-gradient(135deg,#007bff,#00c6ff);
+color:white;
+padding:20px 25px;
+border-radius:10px;
+margin-bottom:25px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:10px;
+}
+
+.page-header h4{
+margin:0;
 }
 
 /* Stats Cards */
+
 .stat-card{
-    background:white;
-    border-radius:10px;
-    padding:20px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+background:white;
+border-radius:10px;
+padding:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+height:100%;
 }
 
 .stat-icon{
-    font-size:30px;
+font-size:30px;
 }
 
 /* Table Card */
+
 .table-card{
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 15px 35px rgba(0,0,0,0.08);
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 15px 35px rgba(0,0,0,0.08);
+overflow-x:auto;
 }
 
-/* Table Head */
+/* Table */
+
 table.dataTable thead{
-    background:#007bff;
-    color:white;
+background:#007bff;
+color:white;
 }
 
-/* Action buttons */
+table{
+min-width:900px;
+}
+
+/* Action Buttons */
+
 .action-btn{
-    border-radius:6px;
-    padding:6px 10px;
+border-radius:6px;
+padding:6px 10px;
+margin:2px;
 }
 
-/* Export buttons */
-.dt-buttons .btn{
-    margin-right:5px;
+/* DataTable Buttons */
+
+.dt-buttons{
+margin-bottom:10px;
+flex-wrap:wrap;
 }
+
+.dt-buttons .btn{
+margin-right:5px;
+margin-bottom:5px;
+}
+
+/* Pagination */
+
 .dataTables_paginate .pagination{
 justify-content:flex-end;
+flex-wrap:wrap;
 }
 
 .pagination .page-link{
 border-radius:6px;
-margin:0 3px;
+margin:2px;
 }
+
+/* Responsive */
+
+@media (max-width:768px){
+
+.page-header{
+flex-direction:column;
+align-items:flex-start;
+}
+
+.page-header a{
+width:100%;
+text-align:center;
+}
+
+.stat-card{
+padding:15px;
+}
+
+.stat-icon{
+font-size:24px;
+}
+
+.table-card{
+padding:15px;
+}
+
+}
+
 </style>
 
-<div class="container py-4">
+<div class="container-fluid admin-page-container py-4">
 
 <div class="page-header">
+
 <h4 class="mb-0">Employee Management</h4>
-<a href="/add_new_employee" class="btn btn-lg btn-outline-light ">Add New Employee</a>
+
+<a href="/add_new_employee" class="btn btn-lg btn-outline-light">
+Add New Employee
+</a>
+
 </div>
 
 <!-- Statistics -->
 
 <div class="row mb-4">
 
+<div class="col-md-4 mb-3">
 
-<div class="col-md-4">
 <div class="stat-card d-flex justify-content-between align-items-center">
+
 <div>
 <h6>Total Employees</h6>
 <h4><%= employees.length %></h4>
 </div>
+
 <div class="stat-icon text-primary">
 <i class="fa-solid fa-users"></i>
 </div>
-</div>
+
 </div>
 
-<div class="col-md-4">
+</div>
+
+<div class="col-md-4 mb-3">
+
 <div class="stat-card d-flex justify-content-between align-items-center">
+
 <div>
 <h6>Monthly Salary</h6>
 <h4>
 <%= employees.filter(e => e.salary_type === 'monthly').length %>
 </h4>
 </div>
+
 <div class="stat-icon text-success">
 <i class="fa-solid fa-money-bill"></i>
 </div>
-</div>
+
 </div>
 
-<div class="col-md-4">
+</div>
+
+<div class="col-md-4 mb-3">
+
 <div class="stat-card d-flex justify-content-between align-items-center">
+
 <div>
 <h6>Daily Wage</h6>
 <h4>
 <%= employees.filter(e => e.salary_type === 'daily').length %>
 </h4>
 </div>
+
 <div class="stat-icon text-warning">
 <i class="fa-solid fa-clock"></i>
 </div>
+
 </div>
+
 </div>
 
 </div>
@@ -123,6 +203,7 @@ margin:0 3px;
 <!-- Table -->
 
 <div class="table-card">
+
 <% if(success_msg){ %>
 <div class="alert alert-success auto-hide">
 <%= success_msg %>
@@ -134,10 +215,13 @@ margin:0 3px;
 <%= error_msg %>
 </div>
 <% } %>
+
 <br>
+
 <table id="employeeTable" class="table table-hover">
 
 <thead>
+
 <tr>
 <th>ID</th>
 <th>Name</th>
@@ -149,6 +233,7 @@ margin:0 3px;
 <th>Address</th>
 <th>Action</th>
 </tr>
+
 </thead>
 
 <tbody>
@@ -172,9 +257,13 @@ margin:0 3px;
 <td>
 
 <% if(emp.salary_type === 'monthly'){ %>
+
 <span class="badge bg-success">Monthly</span>
+
 <% } else { %>
+
 <span class="badge bg-warning text-dark">Daily</span>
+
 <% } %>
 
 </td>
@@ -182,9 +271,13 @@ margin:0 3px;
 <td>
 
 <% if(emp.salary_type === 'monthly'){ %>
+
 ₹ <%= emp.monthly_salary %>
+
 <% } else { %>
+
 ₹ <%= emp.daily_wage %>
+
 <% } %>
 
 </td>
@@ -197,12 +290,16 @@ margin:0 3px;
 
 <a href="/edit_employee/<%= emp.employee_id %>" 
 class="btn btn-warning btn-sm action-btn">
+
 <i class="fa-solid fa-pen"></i>
+
 </a>
 
 <a href="/delete_employee/<%= emp.employee_id %>" 
 class="btn btn-danger btn-sm action-btn">
+
 <i class="fa-solid fa-trash"></i>
+
 </a>
 
 </td>
@@ -241,11 +338,14 @@ class="btn btn-danger btn-sm action-btn">
 
 <script>
 
+/* Auto hide alerts */
+
 setTimeout(function(){
 
 let alerts = document.querySelectorAll('.auto-hide');
 
 alerts.forEach(function(alert){
+
 alert.style.transition = "opacity 0.5s";
 alert.style.opacity = "0";
 
@@ -289,12 +389,17 @@ text:'Print'
 
 });
 
-// Auto serial number
+/* Serial Number */
+
 table.on('order.dt search.dt', function () {
+
 table.column(0, {search:'applied', order:'applied'}).nodes()
 .each(function (cell, i) {
+
 cell.innerHTML = '#' + (i + 1);
+
 });
+
 }).draw();
 
 });
