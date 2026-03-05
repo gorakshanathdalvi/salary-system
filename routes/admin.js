@@ -18,7 +18,9 @@ router.post('/add_employee',auth, async (req, res) => {
 
    const { employee_name, employee_mobile, joining_date, salary_type, monthly_salary, daily_wage, overtime_rate,employee_address } = req.body;
    try{
-
+      
+      let monthly = monthly_salary || 0;
+let daily = daily_wage || 0;
       const sql = `
       INSERT INTO employees
       (employee_name, employee_mobile, joining_date, salary_type, monthly_salary, daily_wage, overtime_rate, employee_address)
@@ -30,8 +32,8 @@ router.post('/add_employee',auth, async (req, res) => {
          employee_mobile,
          joining_date,
          salary_type,
-         monthly_salary,
-         daily_wage,
+         monthly,
+         daily,
          overtime_rate,
          employee_address
       ]);
