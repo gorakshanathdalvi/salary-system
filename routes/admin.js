@@ -102,17 +102,16 @@ router.post('/add_employee',auth, async (req, res) => {
       (employee_name, employee_mobile, joining_date, salary_type, monthly_salary, daily_wage, overtime_rate, employee_address)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `;
-
-      await exe(sql, [
-         employee_name,
-         employee_mobile,
-         joining_date,
-         salary_type,
-         monthly_salary,
-         daily_wage,
-         overtime_rate,
-         employee_address
-      ]);
+await exe(sql, [
+   employee_name,
+   employee_mobile,
+   joining_date,
+   salary_type,
+   monthly_salary || null,
+   daily_wage || null,
+   overtime_rate || 0,
+   employee_address
+]);
 
       res.render('admin/add_new_employee', {
          success_msg: "Employee added successfully!",
