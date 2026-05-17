@@ -306,11 +306,12 @@ const row = this.closest('tr');
 const fields = row.querySelectorAll('.break-time');
 
 fields.forEach(function(field){
-field.style.display = select.value == 'Y' ? 'block' : 'none';
-if(select.value != 'Y'){
-field.querySelectorAll('select').forEach(function(selectBox){
-selectBox.value = selectBox.classList.contains('time-ampm') ? 'AM' : '';
-});
+
+if(select.value == 'Y'){
+field.style.setProperty('display','flex','important');
+}else{
+field.style.setProperty('display','none','important');
+
 }
 });
 
