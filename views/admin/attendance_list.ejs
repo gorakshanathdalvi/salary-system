@@ -9,6 +9,7 @@
 body{
 background:#f1f5fb;
 font-family:'Segoe UI',sans-serif;
+overflow-x:hidden;
 }
 
 .page-header{
@@ -32,6 +33,18 @@ background:white;
 padding:25px;
 border-radius:12px;
 box-shadow:0 15px 35px rgba(0,0,0,0.08);
+overflow-x:auto;
+}
+
+.table-scroll{
+width:100%;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+
+#attendanceTable{
+min-width:1400px;
+width:max-content;
 }
 
 .table thead{
@@ -42,14 +55,16 @@ color:white;
 .form-control{
 height:40px;
 }
+
 .filter-card button,
 .filter-card a{
 height:40px;
 }
+
 </style>
 
 
-<div class="container-fluid admin-page-container py-4">
+<div class="container py-4">
 
 <div class="page-header">
 <h4 class="mb-0">Attendance List</h4>
@@ -135,9 +150,8 @@ height:40px;
 <!-- TABLE -->
 
 <div class="table-card">
-
+<div class="table-scroll">
 <table id="attendanceTable" class="table table-bordered table-hover">
-
 <thead>
 
 <tr>
@@ -146,6 +160,7 @@ height:40px;
 <th>Employee</th>
 <th>In Time</th>
 <th>Out Time</th>
+<th>Break</th>
 <th>Total Hours</th>
 <th>Duty Hours</th>
 <th>OT Hours</th>
@@ -157,6 +172,26 @@ height:40px;
 
 <tbody>
 
+<%
+function formatIndianTime(timeValue){
+if(!timeValue){
+return '-';
+}
+
+const parts = String(timeValue).split(':');
+let hour = Number(parts[0]);
+const minute = parts[1] || '00';
+const ampm = hour >= 12 ? 'PM' : 'AM';
+hour = hour % 12;
+
+if(hour == 0){
+hour = 12;
+}
+
+return `${String(hour).padStart(2,'0')}:${minute.padStart(2,'0')} ${ampm}`;
+}
+%>
+
 <% attendance.forEach((row,index)=>{ %>
 
 <tr>
@@ -167,9 +202,19 @@ height:40px;
 
 <td><%= row.employee_name %></td>
 
-<td><%= row.in_time %></td>
+<td><%= formatIndianTime(row.in_time) %></td>
 
-<td><%= row.out_time %></td>
+<td><%= formatIndianTime(row.out_time) %></td>
+
+<td>
+<% if(row.has_break == 'Y'){ %>
+<%= formatIndianTime(row.break_start_time) %> - <%= formatIndianTime(row.break_end_time) %>
+<br>
+<small><%= Number(row.break_hours || 0).toFixed(2) %> hrs</small>
+<% } else { %>
+-
+<% } %>
+</td>
 
 <td><%= row.total_hours %></td>
 
@@ -207,7 +252,7 @@ height:40px;
 </tbody>
 
 </table>
-
+</div>
 </div>
 
 </div>

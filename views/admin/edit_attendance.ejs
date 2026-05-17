@@ -42,9 +42,22 @@ font-weight:600;
 background:#0056d2;
 }
 
+.break-time{
+display:<%= attendance.has_break == 'Y' ? 'block' : 'none' %>;
+}
+
+.time-12-picker{
+display:flex;
+gap:6px;
+}
+
+.time-12-picker .form-control{
+min-width:72px;
+}
+
 </style>
 
-<div class="container-fluid admin-page-container py-4">
+<div class="container py-4">
 
 <div class="page-header">
 <h4 class="mb-0">Edit Attendance</h4>
@@ -110,7 +123,96 @@ value="<%= attendance.attendance_date.toISOString().split('T')[0] %>">
 <label>In Time</label>
 
 <input type="time" class="form-control" name="in_time"
-value="<%= attendance.in_time %>">
+value="<%= attendance.in_time %>" hidden>
+<div class="time-12-picker" data-time="<%= attendance.in_time %>">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
+
+</div>
+
+
+<div class="col-md-6 mb-3">
+
+<label>Take Break</label>
+
+<select class="form-control" name="has_break" id="has_break">
+
+<option value="N" <%= attendance.has_break != 'Y'?'selected':'' %>>No</option>
+
+<option value="Y" <%= attendance.has_break == 'Y'?'selected':'' %>>Yes</option>
+
+</select>
+
+</div>
+
+
+<div class="col-md-6 mb-3 break-time">
+
+<label>Break Start</label>
+
+<input type="time" class="form-control" name="break_start_time"
+value="<%= attendance.break_start_time || '' %>" hidden>
+<div class="time-12-picker" data-time="<%= attendance.break_start_time || '' %>">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
+
+</div>
+
+
+<div class="col-md-6 mb-3 break-time">
+
+<label>Resume Time</label>
+
+<input type="time" class="form-control" name="break_end_time"
+value="<%= attendance.break_end_time || '' %>" hidden>
+<div class="time-12-picker" data-time="<%= attendance.break_end_time || '' %>">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
 
 </div>
 
@@ -120,7 +222,25 @@ value="<%= attendance.in_time %>">
 <label>Out Time</label>
 
 <input type="time" class="form-control" name="out_time"
-value="<%= attendance.out_time %>">
+value="<%= attendance.out_time %>" hidden>
+<div class="time-12-picker" data-time="<%= attendance.out_time %>">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
 
 </div>
 
@@ -140,5 +260,80 @@ Update Attendance
 </div>
 
 </div>
+
+<script>
+function setPickerFromValue(picker,value){
+if(!value){
+return;
+}
+
+const parts = String(value).split(':');
+let hour24 = Number(parts[0]);
+const minute = parts[1] || '00';
+const ampm = hour24 >= 12 ? 'PM' : 'AM';
+let hour12 = hour24 % 12;
+
+if(hour12 == 0){
+hour12 = 12;
+}
+
+picker.querySelector('.time-hour').value = String(hour12).padStart(2,'0');
+picker.querySelector('.time-minute').value = minute.padStart(2,'0');
+picker.querySelector('.time-ampm').value = ampm;
+}
+
+function updateTimeValue(picker){
+const hour = picker.querySelector('.time-hour').value;
+const minute = picker.querySelector('.time-minute').value;
+const ampm = picker.querySelector('.time-ampm').value;
+const hidden = picker.previousElementSibling;
+
+if(!hour || !minute){
+hidden.value = '';
+return;
+}
+
+let hour24 = Number(hour);
+
+if(ampm == 'AM' && hour24 == 12){
+hour24 = 0;
+}
+
+if(ampm == 'PM' && hour24 != 12){
+hour24 += 12;
+}
+
+hidden.value = `${String(hour24).padStart(2,'0')}:${minute}`;
+}
+
+document.querySelectorAll('.time-12-picker').forEach(function(picker){
+setPickerFromValue(picker,picker.dataset.time);
+
+picker.querySelectorAll('select').forEach(function(select){
+select.addEventListener('change', function(){
+updateTimeValue(picker);
+});
+});
+});
+
+document.getElementById('has_break').addEventListener('change', function(){
+const fields = document.querySelectorAll('.break-time');
+
+fields.forEach((field) => {
+field.style.display = this.value == 'Y' ? 'block' : 'none';
+
+if(this.value != 'Y'){
+const input = field.querySelector('input');
+if(input){
+input.value = '';
+}
+
+field.querySelectorAll('select').forEach(function(selectBox){
+selectBox.value = selectBox.classList.contains('time-ampm') ? 'AM' : '';
+});
+}
+});
+});
+</script>
 
 <%- include('footer') %>

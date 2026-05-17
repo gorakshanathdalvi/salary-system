@@ -1,13 +1,11 @@
 <%- include('navbar') %>
-
 <style>
 
 body{
 background:#f1f5fb;
 font-family:'Segoe UI',sans-serif;
+overflow-x:hidden;
 }
-
-/* Header */
 
 .page-header{
 background:linear-gradient(135deg,#007bff,#00c6ff);
@@ -15,50 +13,43 @@ color:white;
 padding:20px 25px;
 border-radius:10px;
 margin-bottom:25px;
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex-wrap:wrap;
-gap:10px;
 }
-
-.page-header h4{
-margin:0;
-}
-
-/* Card */
 
 .form-card{
 background:white;
 padding:25px;
 border-radius:12px;
 box-shadow:0 15px 35px rgba(0,0,0,0.08);
+overflow-x:auto;
 }
 
-/* Table */
-
-.table-responsive{
+.table-scroll{
+width:100%;
 overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+
+.attendance-table{
+min-width:1700px;
+width:max-content;
 }
 
 .table thead{
 background:#007bff;
 color:white;
+white-space:nowrap;
 }
 
-.table{
-min-width:700px;
+.table td,
+.table th{
+vertical-align:middle;
+white-space:nowrap;
 }
-
-/* Inputs */
 
 .form-control{
 height:40px;
 border-radius:6px;
 }
-
-/* Button */
 
 .save-btn{
 background:#007bff;
@@ -73,51 +64,39 @@ font-weight:600;
 background:#0056d2;
 }
 
-/* Mobile Responsive */
-
-@media (max-width:768px){
-
-.page-header{
-flex-direction:column;
-align-items:flex-start;
+.break-time{
+display:none !important;
+min-width:210px;
 }
 
-.page-header a{
-width:100%;
-text-align:center;
+.time-12-picker{
+display:flex;
+gap:6px;
+min-width:210px;
 }
+
+.time-12-picker .form-control{
+min-width:62px;
+}
+
+@media(max-width:768px){
 
 .form-card{
-padding:20px;
+padding:15px;
 }
 
-.table{
-font-size:14px;
-}
-
-.form-control{
-height:36px;
-font-size:14px;
-}
-
-.save-btn{
-width:100%;
+.attendance-table{
+min-width:1700px;
 }
 
 }
 
 </style>
-
-<div class="container-fluid admin-page-container py-4">
+<div class="container py-4">
 
 <div class="page-header">
-
-<h4>Add Attendance</h4>
-
-<a href="/attendance_list" class="btn btn-sm btn-outline-light">
-View Attendance List
-</a>
-
+<h4 class="mb-0">Add Attendance</h4>
+<a href="/attendance_list" class="btn btn-sm btn-outline-light">View Attendance List</a>
 </div>
 
 <div class="form-card">
@@ -126,30 +105,28 @@ View Attendance List
 
 <div class="row mb-4">
 
-<div class="col-lg-4 col-md-6 col-12">
-
-<label class="mb-1">Select Date</label>
-
+<div class="col-md-4">
+<label>Select Date</label>
 <input type="date" class="form-control" name="attendance_date" required>
-
 </div>
 
 </div>
 
-<div class="table-responsive">
+<div class="table-scroll">
 
-<table class="table table-bordered table-hover">
+<table class="table table-bordered table-hover attendance-table">
 
 <thead>
-
 <tr>
 <th>#</th>
 <th>Employee</th>
 <th>Status</th>
 <th>In Time</th>
+<th>Take Break</th>
+<th>Break Start</th>
+<th>Resume Time</th>
 <th>Out Time</th>
 </tr>
-
 </thead>
 
 <tbody>
@@ -166,25 +143,106 @@ View Attendance List
 </td>
 
 <td>
-
 <select class="form-control" name="status[]">
 <option value="P">Present</option>
 <option value="A">Absent</option>
 <option value="H">Half Day</option>
 </select>
-
 </td>
 
 <td>
-
-<input type="time" class="form-control" name="in_time[]">
-
+<input type="hidden" name="in_time[]" class="time-value">
+<div class="time-12-picker">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
 </td>
 
 <td>
+<select class="form-control break-select" name="has_break[]">
+<option value="N">No</option>
+<option value="Y">Yes</option>
+</select>
+</td>
 
-<input type="time" class="form-control" name="out_time[]">
+<td>
+<input type="hidden" name="break_start_time[]" class="time-value break-input">
+<div class="time-12-picker break-time">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
+</td>
 
+<td>
+<input type="hidden" name="break_end_time[]" class="time-value break-input">
+<div class="time-12-picker break-time">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
+</td>
+
+<td>
+<input type="hidden" name="out_time[]" class="time-value">
+<div class="time-12-picker">
+<select class="form-control time-hour">
+<option value="">HH</option>
+<% for(let h=1; h<=12; h++){ %>
+<option value="<%= String(h).padStart(2,'0') %>"><%= String(h).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-minute">
+<option value="">MM</option>
+<% for(let m=0; m<60; m++){ %>
+<option value="<%= String(m).padStart(2,'0') %>"><%= String(m).padStart(2,'0') %></option>
+<% } %>
+</select>
+<select class="form-control time-ampm">
+<option value="AM">AM</option>
+<option value="PM">PM</option>
+</select>
+</div>
 </td>
 
 </tr>
@@ -194,9 +252,7 @@ View Attendance List
 </tbody>
 
 </table>
-
 </div>
-
 <div class="text-end mt-3">
 
 <button type="submit" class="save-btn">
@@ -210,5 +266,61 @@ Save Attendance
 </div>
 
 </div>
+
+<script>
+function updateTimeValue(picker){
+const hour = picker.querySelector('.time-hour').value;
+const minute = picker.querySelector('.time-minute').value;
+const ampm = picker.querySelector('.time-ampm').value;
+const hidden = picker.previousElementSibling;
+
+if(!hour || !minute){
+hidden.value = '';
+return;
+}
+
+let hour24 = Number(hour);
+
+if(ampm == 'AM' && hour24 == 12){
+hour24 = 0;
+}
+
+if(ampm == 'PM' && hour24 != 12){
+hour24 += 12;
+}
+
+hidden.value = `${String(hour24).padStart(2,'0')}:${minute}`;
+}
+
+document.querySelectorAll('.time-12-picker').forEach(function(picker){
+picker.querySelectorAll('select').forEach(function(select){
+select.addEventListener('change', function(){
+updateTimeValue(picker);
+});
+});
+});
+
+document.querySelectorAll('.break-select').forEach(function(select){
+select.addEventListener('change', function(){
+const row = this.closest('tr');
+const fields = row.querySelectorAll('.break-time');
+
+fields.forEach(function(field){
+field.style.display = select.value == 'Y' ? 'block' : 'none';
+if(select.value != 'Y'){
+field.querySelectorAll('select').forEach(function(selectBox){
+selectBox.value = selectBox.classList.contains('time-ampm') ? 'AM' : '';
+});
+}
+});
+
+row.querySelectorAll('.break-input').forEach(function(input){
+if(select.value != 'Y'){
+input.value = '';
+}
+});
+});
+});
+</script>
 
 <%- include('footer') %>

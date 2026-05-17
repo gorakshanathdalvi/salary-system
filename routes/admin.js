@@ -4,6 +4,84 @@ const auth = require('../middleware/auth');
 const exe = require('../config/conn');
 const PDFDocument = require('pdfkit');
 
+async function ensureAttendanceBreakColumns(){
+const columns = await exe("SHOW COLUMNS FROM attendance");
+const columnNames = columns.map(column => column.Field);
+
+const addColumn = async (name, definition) => {
+if(!columnNames.includes(name)){
+await exe(`ALTER TABLE attendance ADD COLUMN ${name} ${definition}`);
+}
+};
+
+await addColumn('has_break', "ENUM('Y','N') NOT NULL DEFAULT 'N'");
+await addColumn('break_start_time', "TIME NULL");
+await addColumn('break_end_time', "TIME NULL");
+await addColumn('break_hours', "DECIMAL(10,2) NOT NULL DEFAULT 0");
+
+const breakHoursColumn = columns.find(column => column.Field == 'break_hours');
+
+if(breakHoursColumn && !breakHoursColumn.Type.includes('decimal')){
+await exe("ALTER TABLE attendance MODIFY COLUMN break_hours DECIMAL(10,2) NOT NULL DEFAULT 0");
+}
+
+await exe(`
+UPDATE attendance
+SET break_hours = ROUND(
+CASE
+WHEN break_end_time >= break_start_time
+THEN TIME_TO_SEC(TIMEDIFF(break_end_time,break_start_time)) / 3600
+ELSE (TIME_TO_SEC(TIMEDIFF('24:00:00',break_start_time)) + TIME_TO_SEC(break_end_time)) / 3600
+END,2)
+WHERE has_break='Y'
+AND break_start_time IS NOT NULL
+AND break_end_time IS NOT NULL
+`);
+}
+
+function calculateAttendanceHours(inTimeValue,outTimeValue,hasBreak,breakStartValue,breakEndValue,dutyLimit){
+let inTime = new Date(`1970-01-01T${inTimeValue}`);
+let outTime = new Date(`1970-01-01T${outTimeValue}`);
+
+if(outTime <= inTime){
+outTime.setDate(outTime.getDate() + 1);
+}
+
+let total_hours = (outTime - inTime) / (1000 * 60 * 60);
+let break_hours = 0;
+
+if(hasBreak == 'Y' && breakStartValue && breakEndValue){
+let breakStart = new Date(`1970-01-01T${breakStartValue}`);
+let breakEnd = new Date(`1970-01-01T${breakEndValue}`);
+
+if(breakStart < inTime){
+breakStart.setDate(breakStart.getDate() + 1);
+}
+
+if(breakEnd <= breakStart){
+breakEnd.setDate(breakEnd.getDate() + 1);
+}
+
+break_hours = (breakEnd - breakStart) / (1000 * 60 * 60);
+
+if(break_hours < 0 || break_hours > total_hours){
+break_hours = 0;
+}
+
+total_hours -= break_hours;
+}
+
+let duty_hours = total_hours >= dutyLimit ? dutyLimit : total_hours;
+let ot_hours = total_hours > dutyLimit ? (total_hours - dutyLimit) : 0;
+
+return {
+total_hours: total_hours.toFixed(2),
+duty_hours: duty_hours.toFixed(2),
+ot_hours: ot_hours.toFixed(2),
+break_hours: break_hours.toFixed(2)
+};
+}
+
 
 router.get('/', auth, (req, res) => {
    res.render("admin/index");
@@ -18,9 +96,7 @@ router.post('/add_employee',auth, async (req, res) => {
 
    const { employee_name, employee_mobile, joining_date, salary_type, monthly_salary, daily_wage, overtime_rate,employee_address } = req.body;
    try{
-      
-      let monthly = monthly_salary || 0;
-let daily = daily_wage || 0;
+
       const sql = `
       INSERT INTO employees
       (employee_name, employee_mobile, joining_date, salary_type, monthly_salary, daily_wage, overtime_rate, employee_address)
@@ -32,8 +108,8 @@ let daily = daily_wage || 0;
          employee_mobile,
          joining_date,
          salary_type,
-         monthly,
-         daily,
+         monthly_salary,
+         daily_wage,
          overtime_rate,
          employee_address
       ]);
@@ -249,7 +325,9 @@ router.post('/save_attendance', auth, async (req, res) => {
 
 try{
 
-const { attendance_date, employee_id, in_time, out_time, status } = req.body;
+await ensureAttendanceBreakColumns();
+
+const { attendance_date, employee_id, in_time, out_time, status, has_break, break_start_time, break_end_time } = req.body;
 
 /* Get company settings */
 const settings = await exe(`SELECT * FROM company_settings WHERE setting_id=1`);
@@ -262,40 +340,29 @@ for(let i=0;i<employee_id.length;i++){
 
 if(!in_time[i] || !out_time[i]) continue;
 
-/* Convert time to hours */
-
-let inTime = new Date(`1970-01-01T${in_time[i]}`);
-let outTime = new Date(`1970-01-01T${out_time[i]}`);
-
-let total_hours = (outTime - inTime) / (1000 * 60 * 60);
-
-/* Duty hours */
-
-let duty_hours = total_hours >= duty_limit ? duty_limit : total_hours;
-
-/* OT calculation */
-
-let ot_hours = total_hours > duty_limit ? (total_hours - duty_limit) : 0;
-
-/* Round values */
-total_hours = total_hours.toFixed(2);
-duty_hours = duty_hours.toFixed(2);
-ot_hours = ot_hours.toFixed(2);
+const takeBreak = has_break && has_break[i] == 'Y' ? 'Y' : 'N';
+const breakStart = takeBreak == 'Y' ? (break_start_time[i] || null) : null;
+const breakEnd = takeBreak == 'Y' ? (break_end_time[i] || null) : null;
+const hours = calculateAttendanceHours(in_time[i],out_time[i],takeBreak,breakStart,breakEnd,duty_limit);
 
 /* Insert attendance */
 await exe(`
 INSERT INTO attendance
-(employee_id,attendance_date,in_time,out_time,total_hours,duty_hours,ot_hours,status)
-VALUES (?,?,?,?,?,?,?,?)
+(employee_id,attendance_date,in_time,out_time,total_hours,duty_hours,ot_hours,status,has_break,break_start_time,break_end_time,break_hours)
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
 `,[
 employee_id[i],
 attendance_date,
 in_time[i],
 out_time[i],
-total_hours,
-duty_hours,
-ot_hours,
-status[i]
+hours.total_hours,
+hours.duty_hours,
+hours.ot_hours,
+status[i],
+takeBreak,
+breakStart,
+breakEnd,
+hours.break_hours
 ]);
 
 }
@@ -312,6 +379,8 @@ res.redirect('/add_attendance?error_msg=Attendance not saved');
 
 });
 router.get('/attendance_list', auth, async (req,res)=>{
+
+await ensureAttendanceBreakColumns();
 
 let {employee_id,start_date,end_date} = req.query;
 
@@ -367,6 +436,8 @@ error_msg: req.query.error_msg
 
 router.get('/edit_attendance/:id', auth, async (req,res)=>{
 
+await ensureAttendanceBreakColumns();
+
 const attendance = await exe(`
 SELECT * FROM attendance WHERE attendance_id=?
 `,[req.params.id]);
@@ -388,21 +459,22 @@ employee_id,
 attendance_date,
 in_time,
 out_time,
+has_break,
+break_start_time,
+break_end_time,
 status
 } = req.body;
+
+await ensureAttendanceBreakColumns();
 
 const settings = await exe("SELECT duty_hours FROM company_settings WHERE setting_id=1");
 
 const duty_limit = settings[0].duty_hours;
 
-let inTime = new Date(`1970-01-01T${in_time}`);
-let outTime = new Date(`1970-01-01T${out_time}`);
-
-let total_hours = (outTime - inTime) / (1000*60*60);
-
-let duty_hours = total_hours >= duty_limit ? duty_limit : total_hours;
-
-let ot_hours = total_hours > duty_limit ? total_hours - duty_limit : 0;
+const takeBreak = has_break == 'Y' ? 'Y' : 'N';
+const breakStart = takeBreak == 'Y' ? (break_start_time || null) : null;
+const breakEnd = takeBreak == 'Y' ? (break_end_time || null) : null;
+const hours = calculateAttendanceHours(in_time,out_time,takeBreak,breakStart,breakEnd,duty_limit);
 
 await exe(`
 UPDATE attendance SET
@@ -413,17 +485,25 @@ out_time=?,
 total_hours=?,
 duty_hours=?,
 ot_hours=?,
-status=?
+status=?,
+has_break=?,
+break_start_time=?,
+break_end_time=?,
+break_hours=?
 WHERE attendance_id=?
 `,[
 employee_id,
 attendance_date,
 in_time,
 out_time,
-total_hours,
-duty_hours,
-ot_hours,
+hours.total_hours,
+hours.duty_hours,
+hours.ot_hours,
 status,
+takeBreak,
+breakStart,
+breakEnd,
+hours.break_hours,
 req.params.id
 ]);
 
@@ -691,12 +771,15 @@ const employees = await exe(`
 SELECT employee_id,employee_name FROM employees
 `);
 
+const settings = await exe("SELECT duty_hours FROM company_settings WHERE setting_id=1");
+
 res.render("admin/salary_list",{
 
 salary,
 employees,
 employee_id,
-salary_month
+salary_month,
+duty_per_day: settings[0] ? settings[0].duty_hours : 8
 
 });
 

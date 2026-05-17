@@ -42,7 +42,7 @@ color:white;
 </style>
 
 
-<div class="container-fluid admin-page-container py-4">
+<div class="container py-4">
 
 <div class="page-header d-flex justify-content-between">
 
@@ -129,6 +129,7 @@ Generate Salary
 <th>Employee</th>
 <th>Period</th>
 <th>Duty Hours</th>
+<th>Total Days</th>
 <th>OT Hours</th>
 <th>Duty Salary</th>
 <th>OT Salary</th>
@@ -159,6 +160,8 @@ Generate Salary
 </td>
 
 <td><%= row.total_duty_hours %></td>
+
+<td><%= (Number(row.total_duty_hours || 0) / Number(duty_per_day || 8)).toFixed(2) %></td>
 
 <td><%= row.total_ot_hours %></td>
 

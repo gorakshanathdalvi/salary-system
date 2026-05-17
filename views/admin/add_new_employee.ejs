@@ -69,7 +69,7 @@ body{
 
 </style>
 
-<div class="container-fluid admin-page-container py-4">
+<div class="container py-4">
 
 <div class="page-header">
 <h4 class="mb-0">Add New Employee</h4>
@@ -134,17 +134,17 @@ body{
 
 <div class="col-md-4 mb-3" id="monthlySalaryBox" style="display:none;">
 <label>Monthly Salary</label>
-<input type="number" class="form-control" name="monthly_salary">
+<input type="number" step="0.01" class="form-control" name="monthly_salary">
 </div>
 
 <div class="col-md-4 mb-3" id="dailyWageBox" style="display:none;">
 <label>Daily Wage</label>
-<input type="number" class="form-control" name="daily_wage">
+<input type="number" step="0.01" class="form-control" name="daily_wage">
 </div>
 
 <div class="col-md-4 mb-3">
 <label>Overtime Rate</label>
-<input type="number" class="form-control" name="overtime_rate">
+<input type="number" step="0.01" class="form-control" name="overtime_rate">
 </div>
 
 </div>
